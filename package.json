@@ -1,0 +1,28 @@
+{
+  "name": "rpi3_testprj",
+  "version": "1.0.0",
+  "description": "Learning node.js by doing with roocket website",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/h4med/rp3_testprj.git"
+  },
+  "keywords": [
+    "node.js",
+    "expreesjs",
+    "socket.io"
+  ],
+  "author": "HameD",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/h4med/rp3_testprj/issues"
+  },
+  "homepage": "https://github.com/h4med/rp3_testprj#readme",
+  "dependencies": {
+    "express": "^4.15.3",
+    "pug": "^2.0.0-rc.2"
+  }
+}
