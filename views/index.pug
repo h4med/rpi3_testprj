@@ -1,5 +1,7 @@
-h1=name
-h2 #{name}
-form(action="/", method="post")
-	input(name="name")
-	button send
+extend layout.pug
+block content
+
+	h2 #{name}
+	form(action="/", method="post")
+		input(name="name")
+		button send

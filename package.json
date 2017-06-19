@@ -22,7 +22,9 @@
   },
   "homepage": "https://github.com/h4med/rp3_testprj#readme",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "express": "^4.15.3",
+    "express-validator": "^3.2.0",
     "pug": "^2.0.0-rc.2"
   }
 }
