@@ -1,10 +1,10 @@
 var express = require('express');
-
 var app = express();
-
 var bodyParser = require('body-parser');
-
 var expressValidator = require('express-validator');
+var mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/rpi3_node_test');
 
 // parse application/x-www-form-urlencoded 
 app.use(bodyParser.urlencoded({ extended: false }));

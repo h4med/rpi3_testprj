@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var User = require('./model/user');
 
 
 router.get('/', function(req, res){
@@ -13,7 +14,38 @@ router.get('/login', function(req, res){
 });
 
 router.post('/login', function(req, res){
-	res.json(req.body);
+	// res.json(req.body);
+	var email = req.body.email;
+	var password = req.body.password;
+	req.checkBody('email', 'E-Mail is Required!').notEmpty();
+	req.checkBody('password', 'password is Required!').notEmpty();
+
+	var errors = req.validationErrors();
+	if (errors) {
+
+	    res.render('login.pug', {
+	  		title: 'Login page',
+	  		errors: errors,
+	  		email: email
+	  });
+	  console.log('validate error: '+errors);
+	  return;
+	}	
+
+	User.findOne({email:email}, function(err, user){
+		if(err) throw err;
+
+		if(!user){
+			res.redirect('/dashboard/login');
+			return;
+		}
+		if(User.validPassword(password, user.password)){
+			res.redirect('/dashboard');
+			return;
+		}
+		res.redirect('/dashboard/login');
+	});
+
 
 });
 
@@ -49,7 +81,20 @@ router.post('/register', function(req, res){
 	  // res.send('There has been validation errors: ', + util.inspect(errors), 400);
 	  return;
 	}
-	res.json(req.body);
+	var newUser = new User({
+		name: name,
+		email: email,
+		password: User.generateHash(password)
+	});
+
+	// res.json(req.body);
+
+	newUser.save(function(err){
+		if(err) throw err;
+
+		console.log('User Created');
+		res.redirect('/dashboard/login');
+	});
 
 });
 
