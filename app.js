@@ -60,6 +60,9 @@ app.get('/', function(req, res){
 	});
 });
 
+app.get('/session', function(req, res){
+  res.json(req.cookies);
+});
 
 app.listen(3000, function(){
 	console.log('express is running on port 3000');

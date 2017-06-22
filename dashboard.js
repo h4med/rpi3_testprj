@@ -4,22 +4,26 @@ var User = require('./model/user');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
-function isLoggedIn(req, res, next){
-	if(req.isAuthenticated()){
-		next();
-		return;
-	}
-	res.redirect('/dashboard/login');
+function isLoggedIn(req , res , next) {
+   if(req.isAuthenticated()) {
+      next();
+      return;
+   }
+   res.redirect('/dashboard/login');
 }
 
-router.get('/', isLoggedIn, function(req, res){
-	res.send('dashboard Page');
+router.get('/' , isLoggedIn ,  function (req ,res) {
+   res.send('Dasbhoard Page');
 });
 
-router.get('/login', function(req, res){
-	res.render('login.pug', {
-		title:'login page'
-	});
+router.get('/create-post' , isLoggedIn , function (req, res) {
+   res.send('page create post')
+})
+
+router.get('/login' , function (req, res) {
+   res.render('login.pug' ,{
+      title : "Login Page"
+   });
 });
 
 passport.serializeUser(function(user, done) {
@@ -32,83 +36,94 @@ passport.deserializeUser(function(id, done) {
    });
 });
 
-passport.use
+passport.use('local-login' ,new LocalStrategy({
+      usernameField : 'email',
+      passwordField : 'password'
+   },
+   function (email , password , done) {
+      User.findOne({ email : email } , function (err , user) {
+        if(err) { return done(err); }
 
-router.post('/login', function(req, res, next){
-	// res.json(req.body);
-	var email = req.body.email;
-	var password = req.body.password;
+        if(!user) {
+           return done(null,false,{});
+        }
 
-	req.checkBody('email', 'E-Mail is Required!').notEmpty();
-	req.checkBody('password', 'password is Required!').notEmpty();
+        if(! User.validPassword(password , user.password)) {
+           return done(null , false , {});
+        }
 
-	var errors = req.validationErrors();
-	if (errors) {
+        return done(null , user);
+     });
+   }
+));
 
-	    res.render('login.pug', {
-	  		title: 'Login page',
-	  		errors: errors,
-	  		email: email
-	  });
-	  console.log('validate error: '+errors);
-	  return;
-	}	
 
-	next();
+router.post('/login' , function (req ,res , next) {
 
-}, passport.authenticate('local-login', {failureRedirect: '/dashboard/login'}),function(req, res){
-	console.log('Login Successfull');
-	res.redirect('/dashboard');
+   var email = req.body.email;
+   var password = req.body.password;
+
+   req.checkBody('email' , 'The email field is required').notEmpty();
+   req.checkBody('password' , 'The password field is required').notEmpty();
+
+   var errors = req.validationErrors();
+   if (errors) {
+      res.render('login.pug' , {
+         title : 'Login Page',
+         errors : errors
+      });
+      return;
+   }
+
+   next();
+} , passport.authenticate('local-login' , { failureRedirect: '/dashboard/login' }), function (req, res) {
+   console.log('login success');
+   res.redirect('/dashboard');
 });
 
-router.get('/register', function(req, res){
-	res.render('register.pug', {
-		title:'register page'
-	});
+router.get('/register' , function (req, res) {
+   res.render('register.pug' , {
+      title: 'Register Page'
+   });
 });
 
-router.post('/register', function(req, res){
-	// res.json(req.body);
-	var name = req.body.name;
-	var email = req.body.email;
-	var password = req.body.password;
-	var password_confirmation = req.body.password_confirmation;
+router.post('/register' , function (req, res) {
+   var name  = req.body.name;
+   var email = req.body.email;
+   var password = req.body.password;
+   var password_confirmation = req.body.password_confirmation;
 
-	req.checkBody('name', 'Name is Required!').notEmpty();
-	req.checkBody('email', 'E-Mail is Required!').notEmpty();
-	req.checkBody('email', 'Must be a valid address!').isEmail();
-	req.checkBody('password', 'password is Required!').notEmpty();
-	req.checkBody('password_confirmation', 'Confirm Password is Required!').notEmpty();
-	req.checkBody('password_confirmation', 'Passwords Not eqaul!').equals(password);
+   req.checkBody('name' , 'The Name field is required').notEmpty();
+   req.checkBody('email' , 'The email field is required').notEmpty();
+   req.checkBody('email' , 'The email must be a valid email adress').isEmail();
+   req.checkBody('password' , 'The password field is required').notEmpty();
+   req.checkBody('password_confirmation' , 'The Confirm Password field is required').notEmpty();
+   req.checkBody('password_confirmation' , 'Password do not match').equals(password);
 
-	var errors = req.validationErrors();
-	if (errors) {
-	  // do something with the errors 
-	    res.render('register.pug', {
-	  		title: 'Register page',
-	  		errors: errors,
-	  		name: name,
-	  		email: email
-	  });
-	  // res.send('There has been validation errors: ', + util.inspect(errors), 400);
-	  return;
-	}
-	var newUser = new User({
-		name: name,
-		email: email,
-		password: User.generateHash(password)
-	});
 
-	// res.json(req.body);
+   var errors = req.validationErrors();
+   if (errors) {
+      res.render('register.pug' , {
+         title : 'Register Page',
+         errors : errors,
+         name : name,
+         email:email
+      });
+      return;
+   }
 
-	newUser.save(function(err){
-		if(err) throw err;
+   var newUser = new User({
+      name:name,
+      email:email,
+      password: User.generateHash(password)
+   });
 
-		console.log('User Created');
-		res.redirect('/dashboard/login');
-	});
+   newUser.save(function (err) {
+      if(err) throw err;
+
+      res.redirect('/dashboard/login');
+   });
 
 });
 
 module.exports = router;
-
